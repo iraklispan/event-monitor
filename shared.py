@@ -434,7 +434,7 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
                 key=f"{prefix}cancellation_policy",
             )
         
-        cc1, cc2 = st.columns[1,2]
+        cc1, cc2 = st.columns([1,2])
         with cc1:
             st.number_input("Minimum Stay (nights)", min_value=0, step=1,
                             key=f"{prefix}minimum_stay")
