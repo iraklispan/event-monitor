@@ -440,13 +440,13 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
                 key=f"{prefix}cancellation_policy",
             )
             
-            # Το conditional input εμφανίζεται ακριβώς κάτω από το selectbox ή σε δικό του column
-            if cancel_policy == "Flexible":
-                st.number_input("Free cancellation up to X days before arrival",
-                                min_value=0, step=1, key=f"{prefix}cancellation_days")
-            elif cancel_policy == "Night Deposit":
-                st.number_input("Deposit required X days before arrival",
-                                min_value=0, step=1, key=f"{prefix}deposit_days")
+        # Το conditional input εμφανίζεται ακριβώς κάτω από το selectbox ή σε δικό του column
+        if cancel_policy == "Flexible":
+            st.number_input("Free cancellation up to X days before arrival",
+                            min_value=0, step=1, key=f"{prefix}cancellation_days")
+        elif cancel_policy == "Night Deposit":
+            st.number_input("Deposit required X days before arrival",
+                            min_value=0, step=1, key=f"{prefix}deposit_days")
 
     st.divider()
 
