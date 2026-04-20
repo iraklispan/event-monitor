@@ -221,10 +221,15 @@ def event_color(idx: int) -> str:
 
 
 def safe_date(val) -> date:
+    if val is None or val is pd.NaT:
+        return date.today()
     if isinstance(val, date):
         return val
     try:
-        return pd.to_datetime(val).date()
+        ts = pd.to_datetime(val)
+        if pd.isna(ts):
+            return date.today()
+        return ts.date()
     except Exception:
         return date.today()
 
