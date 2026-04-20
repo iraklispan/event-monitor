@@ -61,3 +61,4 @@ def logout_button() -> None:
     if st.sidebar.button("🚪 Logout", use_container_width=True, key="auth_logout"):
         st.session_state.pop("role", None)
         st.rerun()
+    st.sidebar.caption(label)
