@@ -432,7 +432,7 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
         # Row 2: Minimum Stay & Cancellation Policy
         r2_c1, r2_c2 = st.columns(2)
         with r2_c1:
-            st.number_input("Minimum Stay (nights)", min_value=0, step=1,
+            st.number_input("Minimum Nights Stay (optional)", min_value=0, step=1,
                             key=f"{prefix}minimum_stay")
         with r2_c2:
             cancel_policy = st.selectbox(
