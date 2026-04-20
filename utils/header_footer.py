@@ -7,25 +7,6 @@ import streamlit as st
 from paths.paths import LOGO, APP_NAME, VERSION
 
 
-def app_title() -> None:
-    st.sidebar.markdown(
-        f"""
-        <style>
-        .em-sidebar-title {{
-            text-align: center;
-            font-weight: 700;
-            font-size: 1rem;
-            letter-spacing: 0.05em;
-            font-family: "Courier New", Courier, monospace;
-            margin-bottom: 6px;
-        }}
-        </style>
-        <div class="em-sidebar-title">{APP_NAME}</div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
 def logo() -> None:
     """Εμφανίζει το λογότυπο στο sidebar."""
     try:
@@ -34,6 +15,9 @@ def logo() -> None:
             st.image(str(LOGO), width=100)
     except Exception:
         pass  # Αν δεν υπάρχει logo, παράλειψε χωρίς error
+
+
+def app_title() -> None:
     st.sidebar.markdown(
         f"""
         <style>
