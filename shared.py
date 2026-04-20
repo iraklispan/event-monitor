@@ -450,7 +450,8 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
         if st.button("➕ Add Another Room Type", key=f"{prefix}add_room"):
             st.session_state[f"{prefix}num_rooms"] += 1
             st.rerun()
-            
+
+        st.markdown("#### Booking Terms")
 
         # Row 1: Booking Code & Cut-off Date
         r1_c1, r1_c2 = st.columns(2)
@@ -469,17 +470,13 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
                 "Cancellation Policy", cancellation_policies,
                 key=f"{prefix}cancellation_policy",
             )
-            
-        # Το conditional input εμφανίζεται ακριβώς κάτω από το selectbox ή σε δικό του column
+
         if cancel_policy == "Flexible":
             st.number_input("Free cancellation up to X days before arrival",
                             min_value=0, step=1, key=f"{prefix}cancellation_days")
         elif cancel_policy == "Night Deposit":
             st.number_input("Deposit required X days before arrival",
                             min_value=0, step=1, key=f"{prefix}deposit_days")
-
-
-
 
     st.divider()
 
