@@ -480,7 +480,7 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
             st.number_input("Free cancellation up to X days before arrival",
                             min_value=0, step=1, key=f"{prefix}cancellation_days")
         elif cancel_policy == "Night Deposit":
-            st.number_input("Deposit required X days before arrival",
+            st.number_input("Non Refundable Deposit of X Nights",
                             min_value=0, step=1, key=f"{prefix}deposit_days")
 
     st.divider()
