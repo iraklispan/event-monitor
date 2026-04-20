@@ -421,32 +421,25 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
             st.rerun()
 
         st.markdown("#### Booking Terms")
-
-        # Row 1: Booking Code & Cut-off Date
-        r1_c1, r1_c2 = st.columns(2)
-        with r1_c1:
+        c1, c2, c3 = st.columns(3)
+        with c1:
             st.text_input("Booking Code", key=f"{prefix}booking_code")
-        with r1_c2:
-            st.date_input("Cut-off Date", key=f"{prefix}cut_off_date")
-
-        # Row 2: Minimum Stay & Cancellation Policy
-        r2_c1, r2_c2 = st.columns(2)
-        with r2_c1:
             st.number_input("Minimum Stay (nights)", min_value=0, step=1,
                             key=f"{prefix}minimum_stay")
-        with r2_c2:
+        with c2:
+            st.date_input("Cut-off Date", key=f"{prefix}cut_off_date")
+        with c3:
             cancel_policy = st.selectbox(
                 "Cancellation Policy", cancellation_policies,
                 key=f"{prefix}cancellation_policy",
             )
-            
-            # Το conditional input εμφανίζεται ακριβώς κάτω από το selectbox ή σε δικό του column
-            if cancel_policy == "Flexible":
-                st.number_input("Free cancellation up to X days before arrival",
-                                min_value=0, step=1, key=f"{prefix}cancellation_days")
-            elif cancel_policy == "Night Deposit":
-                st.number_input("Deposit required X days before arrival",
-                                min_value=0, step=1, key=f"{prefix}deposit_days")
+        
+        if cancel_policy == "Flexible":
+            st.number_input("Free cancellation up to X days before arrival",
+                            min_value=0, step=1, key=f"{prefix}cancellation_days")
+        elif cancel_policy == "Night Deposit":
+            st.number_input("Deposit required X days before arrival",
+                            min_value=0, step=1, key=f"{prefix}deposit_days")
 
     st.divider()
 
