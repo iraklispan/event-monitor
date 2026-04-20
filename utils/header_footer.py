@@ -30,4 +30,4 @@ def app_title() -> None:
 
 def copy_right() -> None:
     st.sidebar.caption(f"{APP_NAME} v{VERSION}")
-    st.sidebar.caption("© 2026, All rights reserved.")
+    st.sidebar.caption("© 2026 | iP-Labs.gr | All rights reserved.")
