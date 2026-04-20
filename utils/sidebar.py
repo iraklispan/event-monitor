@@ -17,7 +17,6 @@ def sidebar() -> None:
     nav_bar()
     st.sidebar.markdown("---")
     refresh_button()
-    st.sidebar.markdown("<br>", unsafe_allow_html=True)
     logout_button()
     st.sidebar.markdown("---")
     copy_right()
