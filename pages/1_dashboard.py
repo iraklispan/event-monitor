@@ -130,7 +130,7 @@ def generate_printable_html(event_row, rooms_df, spaces_list, color):
             policy_html = f'<div class="badge badge-flexible">✅ Flexible — Free cancellation up to {days} days before arrival</div>'
         elif policy == "Night Deposit":
             days = int(event_row.get('deposit_days', 0) or 0)
-            policy_html = f'<div class="badge badge-deposit">💳 Non Refundable Deposit of {days} Night </div>'
+            policy_html = f'<div class="badge badge-deposit">💳 Non Refundable Deposit of {days} Night</div>'
         elif policy == "Non Refundable":
             policy_html = '<div class="badge badge-nonref">🔒 Non Refundable</div>'
 
