@@ -14,10 +14,11 @@ from shared import (
     load_data, event_color, num_days,
     get_event_rooms, get_event_spaces,
     render_event_form, prefill_form_state, init_form_state,
+    delete_event,
 )
 from utils.mappings import get_price_combos
 from utils.sidebar import sidebar
-from utils.auth import require_login
+from utils.auth import require_login, is_admin
 
 st.set_page_config(
     page_title="Event Dashboard",
@@ -217,15 +218,32 @@ def render_client_card(event_row, rooms_df, spaces_list, color, row_idx):
         unsafe_allow_html=True,
     )
 
-    c1, c2 = st.columns([2, 10])
+    c1, c2, c3 = st.columns([2, 2, 8])
     with c1:
-        if st.button("✏️ Edit this Event", key=f"edit_btn_{row_idx}"):
+        if st.button("✏️ Edit", key=f"edit_btn_{row_idx}"):
             st.session_state["editing_event"] = event_row["event_name"]
             init_form_state("edit_")
             prefill_form_state(event_row, rooms_df, spaces_list, prefix="edit_")
             st.rerun()
 
     with c2:
+        if is_admin() and st.button("🗑️ Delete", key=f"del_btn_{row_idx}", type="secondary"):
+            @st.dialog("🗑️ Διαγραφή Event")
+            def _confirm_delete():
+                st.write(f"Διαγραφή του event **{event_row['event_name']}**;")
+                st.warning("Η ενέργεια είναι μη αναστρέψιμη — διαγράφονται όλα τα δεδομένα του event.")
+                d1, d2 = st.columns(2)
+                with d1:
+                    if st.button("✅ Διαγραφή", type="primary", use_container_width=True, key="del_ok"):
+                        with st.spinner("Διαγραφή..."):
+                            delete_event(event_row["event_id"])
+                        st.rerun()
+                with d2:
+                    if st.button("❌ Άκυρο", use_container_width=True, key="del_cancel"):
+                        st.rerun()
+            _confirm_delete()
+
+    with c3:
         html_content = generate_printable_html(event_row, rooms_df, spaces_list, color)
         b64 = base64.b64encode(html_content.encode("utf-8")).decode("utf-8")
         button_html = f"""

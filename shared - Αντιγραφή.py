@@ -170,37 +170,6 @@ def save_event(event_row, room_rows, space_rows, service_rows):
 
 
 # ─────────────────────────────────────────────
-# DELETE DATA
-# ─────────────────────────────────────────────
-def delete_event(event_id: str) -> None:
-    """
-    Διαγράφει όλες τις εγγραφές που σχετίζονται με το event_id
-    από τα sheets events, rooms, spaces, services.
-    """
-    sheets = get_sheets()
-
-    # Στήλη όπου βρίσκεται το event_id σε κάθε sheet
-    event_id_col = {
-        "events":   0,  # πρώτη στήλη
-        "rooms":    0,
-        "spaces":   1,  # δεύτερη στήλη (πρώτη είναι space_id)
-        "services": 1,
-    }
-
-    for sheet_name, ws in sheets.items():
-        col_idx = event_id_col[sheet_name]
-        rows = ws.get_all_values()
-        to_delete = []
-        for i, row in enumerate(rows[1:], start=2):  # start=2: γραμμή 1 = header
-            if len(row) > col_idx and row[col_idx] == event_id:
-                to_delete.append(i)
-        for row_idx in reversed(to_delete):  # αντίστροφα για να μη μετακινούνται οι δείκτες
-            ws.delete_rows(row_idx)
-
-    load_data.clear()
-
-
-# ─────────────────────────────────────────────
 # ID GENERATION
 # ─────────────────────────────────────────────
 def generate_event_id(event_name: str) -> str:
@@ -450,7 +419,8 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
         if st.button("➕ Add Another Room Type", key=f"{prefix}add_room"):
             st.session_state[f"{prefix}num_rooms"] += 1
             st.rerun()
-            
+
+        st.markdown("#### Booking Terms")
 
         # Row 1: Booking Code & Cut-off Date
         r1_c1, r1_c2 = st.columns(2)
@@ -477,9 +447,6 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
         elif cancel_policy == "Night Deposit":
             st.number_input("Deposit required X days before arrival",
                             min_value=0, step=1, key=f"{prefix}deposit_days")
-
-
-
 
     st.divider()
 
