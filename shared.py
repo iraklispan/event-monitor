@@ -433,12 +433,18 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
                 "Cancellation Policy", cancellation_policies,
                 key=f"{prefix}cancellation_policy",
             )
-        if cancel_policy == "Flexible":
-            st.number_input("Free cancellation up to X days before arrival",
-                            min_value=0, step=1, key=f"{prefix}cancellation_days")
-        elif cancel_policy == "Night Deposit":
-            st.number_input("Deposit required X days before arrival",
-                            min_value=0, step=1, key=f"{prefix}deposit_days")
+        
+        c1, c2 = st.columns[1,2]
+        with c1:
+            st.number_input("Minimum Stay (nights)", min_value=0, step=1,
+                            key=f"{prefix}minimum_stay")
+        with c2:
+            if cancel_policy == "Flexible":
+                st.number_input("Free cancellation up to X days before arrival",
+                                min_value=0, step=1, key=f"{prefix}cancellation_days")
+            elif cancel_policy == "Night Deposit":
+                st.number_input("Deposit required X days before arrival",
+                                min_value=0, step=1, key=f"{prefix}deposit_days")
 
     st.divider()
 
