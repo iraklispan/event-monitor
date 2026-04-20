@@ -6,6 +6,7 @@ sys.dont_write_bytecode = True
 import streamlit as st
 from shared import render_event_form
 from utils.sidebar import sidebar
+from utils.auth import require_login
 
 st.set_page_config(
     page_title="Register Event",
@@ -13,6 +14,7 @@ st.set_page_config(
     layout="wide",
 )
 
+require_login()
 sidebar()
 
 st.title("📋 Register Event")

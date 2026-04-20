@@ -7,7 +7,7 @@ import streamlit as st
 from utils.navigation    import hide_default_nav_bar, nav_bar
 from utils.header_footer import app_title, copy_right
 from utils.buttons       import refresh_button
-from utils.auth          import login_sidebar
+from utils.auth          import logout_button
 
 
 def sidebar() -> None:
@@ -18,6 +18,6 @@ def sidebar() -> None:
     st.sidebar.markdown("---")
     refresh_button()
     st.sidebar.markdown("<br>", unsafe_allow_html=True)
-    login_sidebar()
+    logout_button()
     st.sidebar.markdown("---")
     copy_right()

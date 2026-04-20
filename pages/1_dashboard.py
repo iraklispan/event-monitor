@@ -17,6 +17,7 @@ from shared import (
 )
 from utils.mappings import get_price_combos
 from utils.sidebar import sidebar
+from utils.auth import require_login
 
 st.set_page_config(
     page_title="Event Dashboard",
@@ -24,6 +25,7 @@ st.set_page_config(
     layout="wide",
 )
 
+require_login()
 sidebar()
 
 

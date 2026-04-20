@@ -7,7 +7,7 @@ import streamlit as st
 import pandas as pd
 
 from utils.sidebar import sidebar
-from utils.auth import is_admin
+from utils.auth import require_login, is_admin
 from utils.mappings import load_list, save_list
 from paths.paths import (
     ROOM_TYPES_JSON, RATE_PLANS_JSON, CANCELLATION_JSON,
@@ -16,6 +16,7 @@ from paths.paths import (
 
 st.set_page_config(page_title="Settings", page_icon="⚙️", layout="wide")
 
+require_login()
 sidebar()
 
 if not is_admin():
