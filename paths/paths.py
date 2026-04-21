@@ -32,4 +32,4 @@ LOGO = DIR_ASSETS / "bird.png"
 
 # Other
 APP_NAME = "Event Monitor"
-VERSION  = "1.1.2"
+VERSION  = "2.0.0"
