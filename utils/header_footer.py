@@ -4,17 +4,9 @@ import sys
 sys.dont_write_bytecode = True
 
 import streamlit as st
-from paths.paths import LOGO, APP_NAME, VERSION
 
-
-def logo() -> None:
-    """Εμφανίζει το λογότυπο στο sidebar."""
-    try:
-        _, col2, _ = st.sidebar.columns([1, 2, 1])
-        with col2:
-            st.image(str(LOGO), width=100)
-    except Exception:
-        pass  # Αν δεν υπάρχει logo, παράλειψε χωρίς error
+APP_NAME = "Event Monitor"
+VERSION  = "1.1.2"
 
 
 def app_title() -> None:
@@ -35,6 +27,7 @@ def app_title() -> None:
         unsafe_allow_html=True,
     )
 
+
 def copy_right() -> None:
     st.sidebar.caption(f"{APP_NAME} v{VERSION}")
-    st.sidebar.caption("© 2026 | iP-Labs.gr | All rights reserved.")
+    st.sidebar.caption("© 2026, All rights reserved.")

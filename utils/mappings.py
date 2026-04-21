@@ -7,7 +7,8 @@ import json
 import streamlit as st
 from paths.paths import (
     ROOM_TYPES_JSON, RATE_PLANS_JSON, CANCELLATION_JSON,
-    SPACE_NAMES_JSON, SERVICES_JSON, EVENT_TYPES_JSON, PRICE_COMBOS_JSON,
+    SPACE_NAMES_JSON, SERVICES_JSON, EVENT_TYPES_JSON,
+    PRICE_COMBOS_JSON, MENU_TYPES_JSON,
 )
 
 
@@ -30,6 +31,7 @@ def _clear_mapping_caches() -> None:
     get_services.clear()
     get_event_types.clear()
     get_price_combos.clear()
+    get_menu_types.clear()
 
 
 @st.cache_data
@@ -65,3 +67,8 @@ def get_event_types() -> list:
 @st.cache_data
 def get_price_combos() -> list:
     return load_list(PRICE_COMBOS_JSON)
+
+
+@st.cache_data
+def get_menu_types() -> list:
+    return load_list(MENU_TYPES_JSON)

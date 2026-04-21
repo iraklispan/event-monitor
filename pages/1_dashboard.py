@@ -12,7 +12,7 @@ import streamlit.components.v1 as components
 
 from shared import (
     load_data, event_color, num_days,
-    get_event_rooms, get_event_spaces,
+    get_event_rooms, get_event_spaces, get_event_calendar, get_event_menus,
     render_event_form, prefill_form_state, init_form_state,
     delete_event,
 )
@@ -130,7 +130,7 @@ def generate_printable_html(event_row, rooms_df, spaces_list, color):
             policy_html = f'<div class="badge badge-flexible">✅ Flexible — Free cancellation up to {days} days before arrival</div>'
         elif policy == "Night Deposit":
             days = int(event_row.get('deposit_days', 0) or 0)
-            policy_html = f'<div class="badge badge-deposit">💳 Non Refundable Deposit of {days} Night</div>'
+            policy_html = f'<div class="badge badge-deposit">💳 Night Deposit — Required {days} days before arrival</div>'
         elif policy == "Non Refundable":
             policy_html = '<div class="badge badge-nonref">🔒 Non Refundable</div>'
 
@@ -179,13 +179,26 @@ def generate_printable_html(event_row, rooms_df, spaces_list, color):
             html += "</tbody></table>"
         html += "</div>"
 
-    if str(event_row.get("includes_meeting_spaces", "")).lower() == "true" and spaces_list:
-        html += '<div class="section"><h2>🏛️ Meeting Spaces & Events</h2>'
+    if str(event_row.get("includes_venues", "")).lower() == "true" and spaces_list:
+        html += '<div class="section"><h2>🏛️ Venues &amp; Services</h2>'
+        prep = event_row.get("preparation_notes", "")
+        if prep:
+            html += f'<p style="margin-bottom:12px;"><b>Preparation Notes:</b> {prep}</p>'
         for sp in spaces_list:
+            venue_date = sp.get("venue_date", "")
+            if hasattr(venue_date, "strftime"):
+                venue_date = venue_date.strftime("%d/%m/%Y") if pd.notna(venue_date) else "—"
             html += f"""
             <div class="section" style="margin-bottom:15px;border:1px solid #e2e8f0;padding:15px;border-radius:6px;">
-                <h3 style="margin-top:0;margin-bottom:10px;">{sp['space_name']}</h3>
+                <h3 style="margin-top:0;margin-bottom:6px;">{sp.get('venue_event_name') or sp['space_name']}</h3>
+                <p style="margin:0 0 8px 0;color:#64748b;font-size:13px;">
+                    📍 {sp['space_name']} &nbsp;|&nbsp;
+                    📅 {venue_date} &nbsp;|&nbsp;
+                    🕐 {sp.get('venue_from','—')} – {sp.get('venue_to','—')}
+                </p>
             """
+            if sp.get("venue_notes"):
+                html += f'<p style="font-size:13px;"><b>Venue Notes:</b> {sp["venue_notes"]}</p>'
             if sp["services"]:
                 html += """
                 <table>
@@ -195,6 +208,8 @@ def generate_printable_html(event_row, rooms_df, spaces_list, color):
                 for sv in sp["services"]:
                     html += f"<tr><td>{sv['type']}</td><td>{sv['pax']}</td></tr>"
                 html += "</tbody></table>"
+            if sp.get("service_notes"):
+                html += f'<p style="margin-top:8px;font-size:13px;"><b>Service Notes:</b> {sp["service_notes"]}</p>'
             html += "</div>"
         html += "</div>"
 
@@ -205,8 +220,11 @@ def generate_printable_html(event_row, rooms_df, spaces_list, color):
 # ─────────────────────────────────────────────
 # CLIENT CARD
 # ─────────────────────────────────────────────
-def render_client_card(event_row, rooms_df, spaces_list, color, row_idx):
-    price_combos = get_price_combos()
+def render_client_card(event_row, rooms_df, spaces_list, color, row_idx,
+                       calendar_list=None, menus_list=None):
+    price_combos   = get_price_combos()
+    calendar_list  = calendar_list or []
+    menus_list     = menus_list or []
 
     st.markdown(
         f"""<div style="border-left:5px solid {color};padding:0.6rem 1.2rem;
@@ -223,7 +241,8 @@ def render_client_card(event_row, rooms_df, spaces_list, color, row_idx):
         if st.button("✏️ Edit", key=f"edit_btn_{row_idx}"):
             st.session_state["editing_event"] = event_row["event_name"]
             init_form_state("edit_")
-            prefill_form_state(event_row, rooms_df, spaces_list, prefix="edit_")
+            prefill_form_state(event_row, rooms_df, spaces_list,
+                               calendar_list, menus_list, prefix="edit_")
             st.rerun()
 
     with c2:
@@ -268,6 +287,7 @@ def render_client_card(event_row, rooms_df, spaces_list, color, row_idx):
         """
         components.html(button_html, height=40)
 
+    # ── General Information ──
     with st.expander("📌 General Information", expanded=True):
         c1, c2, c3, c4, c5 = st.columns(5)
         c1.metric("Type", event_row.get("event_type") or "—")
@@ -277,7 +297,40 @@ def render_client_card(event_row, rooms_df, spaces_list, color, row_idx):
                   if pd.notna(event_row["event_end"]) else "—")
         c4.metric("Duration", f"{num_days(event_row)} nights")
         c5.metric("Attendees", int(event_row.get("attendees", 0) or 0))
+        desc = event_row.get("event_description", "")
+        info = event_row.get("important_info", "")
+        if desc:
+            st.markdown(f"**Description:** {desc}")
+        if info:
+            st.markdown(f"**Important Info:** {info}")
 
+    # ── Organizers & VIPs ──
+    if str(event_row.get("includes_organizer_info", "")).lower() == "true":
+        with st.expander("👤 Organizers & VIPs", expanded=False):
+            st.markdown(f"**Organizer:** {event_row.get('organizer') or '—'}")
+            if event_row.get("contact_info"):
+                st.markdown(f"**Contact:** {event_row['contact_info']}")
+            if event_row.get("special_offers"):
+                st.markdown(f"**Special Offers:** {event_row['special_offers']}")
+            if event_row.get("organizer_notes"):
+                st.markdown(f"**Notes:** {event_row['organizer_notes']}")
+
+    # ── Activity Calendar ──
+    if str(event_row.get("includes_calendar", "")).lower() == "true" and calendar_list:
+        with st.expander("📅 Activity Calendar", expanded=False):
+            for day in calendar_list:
+                day_date = day.get("day_date", "")
+                if hasattr(day_date, "strftime"):
+                    try:
+                        day_date = pd.to_datetime(day_date).strftime("%d/%m/%Y")
+                    except Exception:
+                        day_date = str(day_date)
+                st.markdown(f"**Day {day['day_number']} — {day_date}**")
+                if day.get("schedule"):
+                    st.markdown(day["schedule"])
+                st.markdown("---")
+
+    # ── Accommodation ──
     if str(event_row.get("includes_accommodation", "")).lower() == "true":
         with st.expander("🛏️ Accommodation", expanded=True):
             c1, c2, c3, c4 = st.columns(4)
@@ -302,10 +355,13 @@ def render_client_card(event_row, rooms_df, spaces_list, color, row_idx):
             if pd.notna(cut_off):
                 st.markdown(f"**Cut-off Date:** {cut_off.strftime('%d/%m/%Y')}")
 
+            if event_row.get("accommodation_notes"):
+                st.markdown(f"**Notes:** {event_row['accommodation_notes']}")
+
             if not rooms_df.empty:
                 st.markdown("---")
                 st.markdown("**Room Types**")
-                room_rows = []
+                room_table = []
                 for _, r in rooms_df.iterrows():
                     prices = {}
                     for combo in price_combos:
@@ -316,25 +372,65 @@ def render_client_card(event_row, rooms_df, spaces_list, color, row_idx):
                             v = 0
                         if v > 0:
                             prices[combo] = f"€{v}"
-                    room_rows.append({
+                    row_data = {
                         "Room Type": r.get("room_type", ""),
                         "Count":     int(float(r.get("room_count", 0) or 0)),
                         "Rate Plan": r.get("rate_plan", "—"),
                         **prices,
-                    })
-                st.dataframe(pd.DataFrame(room_rows), use_container_width=True, hide_index=True)
+                    }
+                    if r.get("room_notes"):
+                        row_data["Notes"] = r["room_notes"]
+                    room_table.append(row_data)
+                st.dataframe(pd.DataFrame(room_table), use_container_width=True, hide_index=True)
 
-    if str(event_row.get("includes_meeting_spaces", "")).lower() == "true" and spaces_list:
-        with st.expander("🏛️ Meeting Spaces & Events", expanded=True):
+    # ── Venues & Services ──
+    if str(event_row.get("includes_venues", "")).lower() == "true" and spaces_list:
+        with st.expander("🏛️ Venues & Services", expanded=True):
+            if event_row.get("preparation_notes"):
+                st.info(f"**Preparation Notes:** {event_row['preparation_notes']}")
             for sp in spaces_list:
-                st.markdown(f"**{sp['space_name']}**")
+                venue_date = sp.get("venue_date", "")
+                if hasattr(venue_date, "strftime"):
+                    try:
+                        venue_date = pd.to_datetime(venue_date).strftime("%d/%m/%Y")
+                    except Exception:
+                        venue_date = str(venue_date)
+                label = sp.get("venue_event_name") or sp["space_name"]
+                st.markdown(
+                    f"**{label}** — 📍 {sp['space_name']}  |  📅 {venue_date}  |  "
+                    f"🕐 {sp.get('venue_from','—')} – {sp.get('venue_to','—')}"
+                )
+                if sp.get("venue_notes"):
+                    st.caption(f"Venue Notes: {sp['venue_notes']}")
                 if sp["services"]:
                     svc_df = pd.DataFrame([
                         {"Service": sv["type"], "Pax": sv["pax"]}
                         for sv in sp["services"]
                     ])
                     st.dataframe(svc_df, use_container_width=True, hide_index=True)
-                st.markdown("")
+                if sp.get("service_notes"):
+                    st.caption(f"Service Notes: {sp['service_notes']}")
+                st.markdown("---")
+
+    # ── Menus ──
+    if menus_list:
+        with st.expander("🍽️ Menus", expanded=False):
+            for mn in menus_list:
+                menu_date = mn.get("menu_date", "")
+                try:
+                    menu_date = pd.to_datetime(menu_date).strftime("%d/%m/%Y")
+                except Exception:
+                    pass
+                st.markdown(
+                    f"**{mn.get('menu_name','—')}** — {mn.get('activity_name') or ''}  |  "
+                    f"📍 {mn.get('venue_name','—')}  |  📅 {menu_date}  |  "
+                    f"Pax {mn.get('pax_min',0)}–{mn.get('pax_max',0)}"
+                )
+                if mn.get("menu_items"):
+                    st.markdown(mn["menu_items"])
+                if mn.get("menu_notes"):
+                    st.caption(f"Notes: {mn['menu_notes']}")
+                st.markdown("---")
 
 
 # ─────────────────────────────────────────────
@@ -452,6 +548,8 @@ events_df   = data["events"]
 rooms_df    = data["rooms"]
 spaces_df   = data["spaces"]
 services_df = data["services"]
+calendar_df = data["calendar"]
+menus_df    = data["menus"]
 
 if events_df.empty:
     st.warning("Δεν υπάρχουν δεδομένα ακόμα.")
@@ -506,15 +604,18 @@ with tab1:
         st.subheader("📄 Client Card")
         selected_row = df_year.loc[selected_idx]
         color        = event_color(selected_idx)
-        eid          = selected_row["event_id"]
-        ev_rooms_df  = get_event_rooms(rooms_df, eid)
-        ev_spaces    = get_event_spaces(spaces_df, services_df, eid)
+        eid            = selected_row["event_id"]
+        ev_rooms_df    = get_event_rooms(rooms_df, eid)
+        ev_spaces      = get_event_spaces(spaces_df, services_df, eid)
+        ev_calendar    = get_event_calendar(calendar_df, eid)
+        ev_menus       = get_event_menus(menus_df, eid)
 
         editing = st.session_state.get("editing_event")
         if editing and editing == selected_row["event_name"]:
             render_edit_card(editing)
         else:
-            render_client_card(selected_row, ev_rooms_df, ev_spaces, color, selected_idx)
+            render_client_card(selected_row, ev_rooms_df, ev_spaces, color, selected_idx,
+                               ev_calendar, ev_menus)
 
 with tab2:
     render_gantt(df_year, rooms_df, spaces_df, selected_year)

@@ -11,7 +11,8 @@ from utils.auth import require_login, is_admin
 from utils.mappings import load_list, save_list
 from paths.paths import (
     ROOM_TYPES_JSON, RATE_PLANS_JSON, CANCELLATION_JSON,
-    SPACE_NAMES_JSON, SERVICES_JSON, EVENT_TYPES_JSON, PRICE_COMBOS_JSON,
+    SPACE_NAMES_JSON, SERVICES_JSON, EVENT_TYPES_JSON,
+    PRICE_COMBOS_JSON, MENU_TYPES_JSON,
 )
 
 st.set_page_config(page_title="Settings", page_icon="⚙️", layout="wide")
@@ -30,9 +31,10 @@ SECTIONS = [
     ("🏨 Room Types",            ROOM_TYPES_JSON,  "room_types",  False),
     ("🍽️ Rate Plans",            RATE_PLANS_JSON,  "rate_plans",  False),
     ("📜 Cancellation Policies", CANCELLATION_JSON,"cancellation",False),
-    ("🏛️ Space Names",           SPACE_NAMES_JSON, "space_names", False),
+    ("🏛️ Venue Names",           SPACE_NAMES_JSON, "space_names", False),
     ("☕ Services",               SERVICES_JSON,    "services",    False),
     ("📅 Event Types",           EVENT_TYPES_JSON, "event_types", False),
+    ("🍴 Menu Types",            MENU_TYPES_JSON,  "menu_types",  False),
     ("💰 Price Combos",          PRICE_COMBOS_JSON,"price_combos",True),
 ]
 
