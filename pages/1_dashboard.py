@@ -52,8 +52,11 @@ def count_spaces_from_df(spaces_df, event_id):
     return len(spaces_df[spaces_df["event_id"] == event_id])
 
 
-def generate_printable_html(event_row, rooms_df, spaces_list, color):
+def generate_printable_html(event_row, rooms_df, spaces_list, color,
+                           calendar_list=None, menus_list=None):
     price_combos = get_price_combos()
+    calendar_list = calendar_list or []
+    menus_list    = menus_list or []
     ev_start = event_row["event_start"].strftime("%d/%m/%Y") if pd.notna(event_row.get("event_start")) else "—"
     ev_end   = event_row["event_end"].strftime("%d/%m/%Y")   if pd.notna(event_row.get("event_end"))   else "—"
     duration  = f"{num_days(event_row)} nights"
@@ -96,7 +99,7 @@ def generate_printable_html(event_row, rooms_df, spaces_list, color):
         </style>
     </head>
     <body onload="window.print()">
-    <button class="no-print print-btn" onclick="window.print()">🖨️ Εκτύπωση / Save as PDF</button>
+    <button class="no-print print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
 
         <div class="card-header section">
             <h1>{event_row['event_name']}</h1>
@@ -112,8 +115,31 @@ def generate_printable_html(event_row, rooms_df, spaces_list, color):
                 <div class="metric-box"><div class="metric-label">Duration</div><div class="metric-value">{duration}</div></div>
                 <div class="metric-box"><div class="metric-label">Attendees</div><div class="metric-value">{attendees}</div></div>
             </div>
-        </div>
     """
+
+    desc = event_row.get("event_description", "")
+    info = event_row.get("important_info", "")
+    if desc:
+        html += f'<p style="margin-top:12px;font-size:14px;"><b>Description:</b> {desc}</p>'
+    if info:
+        html += f'<p style="font-size:14px;"><b>Important Info:</b> {info}</p>'
+    html += "</div>"
+
+    # ── Organizers & VIPs ──
+    if str(event_row.get("includes_organizer_info", "")).lower() == "true":
+        organizer = event_row.get("organizer") or "—"
+        contact   = event_row.get("contact_info", "")
+        offers    = event_row.get("special_offers", "")
+        org_notes = event_row.get("organizer_notes", "")
+        html += '<div class="section"><h2>👤 Organizers &amp; VIPs</h2>'
+        html += f'<p style="font-size:14px;"><b>Organizer:</b> {organizer}</p>'
+        if contact:
+            html += f'<p style="font-size:14px;"><b>Contact:</b> {contact}</p>'
+        if offers:
+            html += f'<p style="font-size:14px;"><b>Special Offers:</b> {offers}</p>'
+        if org_notes:
+            html += f'<p style="font-size:14px;"><b>Notes:</b> {org_notes}</p>'
+        html += "</div>"
 
     if str(event_row.get("includes_accommodation", "")).lower() == "true":
         acc_start = event_row.get("acc_start")
@@ -177,6 +203,10 @@ def generate_printable_html(event_row, rooms_df, spaces_list, color):
                     </tr>
                 """
             html += "</tbody></table>"
+            # room_notes per row already added inline; add section-level accommodation notes
+        acc_notes = event_row.get("accommodation_notes", "")
+        if acc_notes:
+            html += f'<p style="margin-top:10px;font-size:14px;"><b>Accommodation Notes:</b> {acc_notes}</p>'
         html += "</div>"
 
     if str(event_row.get("includes_venues", "")).lower() == "true" and spaces_list:
@@ -211,6 +241,50 @@ def generate_printable_html(event_row, rooms_df, spaces_list, color):
             if sp.get("service_notes"):
                 html += f'<p style="margin-top:8px;font-size:13px;"><b>Service Notes:</b> {sp["service_notes"]}</p>'
             html += "</div>"
+        html += "</div>"
+
+    # ── Activity Calendar ──
+    if str(event_row.get("includes_calendar", "")).lower() == "true" and calendar_list:
+        html += '<div class="section"><h2>📅 Activity Calendar</h2>'
+        for day in calendar_list:
+            day_date = day.get("day_date", "")
+            if hasattr(day_date, "strftime"):
+                try:
+                    day_date = pd.to_datetime(day_date).strftime("%d/%m/%Y")
+                except Exception:
+                    day_date = str(day_date)
+            html += f'<div style="margin-bottom:12px;page-break-inside:avoid;">'
+            html += f'<p style="font-weight:600;font-size:14px;margin-bottom:4px;">Day {day["day_number"]} — {day_date}</p>'
+            if day.get("schedule"):
+                schedule_html = day["schedule"].replace("\n", "<br>")
+                html += f'<p style="font-size:13px;color:#334155;">{schedule_html}</p>'
+            html += '<hr style="border:none;border-top:1px solid #e2e8f0;margin:8px 0;">'
+            html += '</div>'
+        html += "</div>"
+
+    # ── Menus ──
+    if menus_list:
+        html += '<div class="section"><h2>🍽️ Menus</h2>'
+        for mn in menus_list:
+            menu_date = mn.get("menu_date", "")
+            try:
+                menu_date = pd.to_datetime(menu_date).strftime("%d/%m/%Y")
+            except Exception:
+                pass
+            html += '<div style="margin-bottom:15px;border:1px solid #e2e8f0;padding:15px;border-radius:6px;page-break-inside:avoid;">'
+            html += f'<h3 style="margin:0 0 6px 0;font-size:15px;">{mn.get("menu_name","—")}</h3>'
+            html += f'<p style="font-size:13px;color:#64748b;margin:0 0 8px 0;">'
+            html += f'📍 {mn.get("venue_name","—")} &nbsp;|&nbsp; 📅 {menu_date} &nbsp;|&nbsp; '
+            html += f'Pax {mn.get("pax_min",0)}–{mn.get("pax_max",0)}'
+            if mn.get("activity_name"):
+                html += f' &nbsp;|&nbsp; {mn["activity_name"]}'
+            html += '</p>'
+            if mn.get("menu_items"):
+                items_html = mn["menu_items"].replace("\n", "<br>")
+                html += f'<p style="font-size:13px;">{items_html}</p>'
+            if mn.get("menu_notes"):
+                html += f'<p style="font-size:12px;color:#64748b;"><b>Notes:</b> {mn["menu_notes"]}</p>'
+            html += '</div>'
         html += "</div>"
 
     html += "</body></html>"
@@ -263,7 +337,8 @@ def render_client_card(event_row, rooms_df, spaces_list, color, row_idx,
             _confirm_delete()
 
     with c3:
-        html_content = generate_printable_html(event_row, rooms_df, spaces_list, color)
+        html_content = generate_printable_html(event_row, rooms_df, spaces_list, color,
+                                               calendar_list=calendar_list, menus_list=menus_list)
         b64 = base64.b64encode(html_content.encode("utf-8")).decode("utf-8")
         button_html = f"""
         <style>
