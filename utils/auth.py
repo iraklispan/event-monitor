@@ -56,8 +56,8 @@ def _check_login(pwd: str) -> None:
 
 def logout_button() -> None:
     role  = st.session_state.get("role", "")
-    st.sidebar.caption(label)
+    label = "👤 Admin" if role == "admin" else "👤 User"
     if st.sidebar.button("🚪 Logout", use_container_width=True, key="auth_logout"):
         st.session_state.pop("role", None)
         st.rerun()
-    label = "👤 Admin" if role == "admin" else "👤 User"
+    st.sidebar.caption(label)
