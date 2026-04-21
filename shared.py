@@ -485,7 +485,7 @@ def render_room_block(idx, prefix=""):
         col_h, col_r = st.columns([10, 1])
         col_h.markdown(f"**🛏️ Room Type {idx}**")
         room_indices = st.session_state.get(f"{p}room_indices", [idx])
-        if col_r.button("✖", key=f"{p}rm_room_{idx}", help="Αφαίρεση",
+        if col_r.button("✖", key=f"{p}rm_room_{idx}", help="Delete",
                         disabled=len(room_indices) <= 1):
             room_indices.remove(idx)
             st.rerun()
@@ -499,7 +499,7 @@ def render_room_block(idx, prefix=""):
         with c3:
             st.selectbox("Rate Plan", rate_plans, key=f"{p}room{idx}_rate_plan")
 
-        st.markdown("**Τιμές (€) — συμπλήρωσε όσα ισχύουν:**")
+        st.markdown("**Prices (€) — fill in what applies:**")
         pcols = st.columns(len(price_combos))
         for ci, combo in enumerate(price_combos):
             with pcols[ci]:
@@ -507,7 +507,7 @@ def render_room_block(idx, prefix=""):
                                 key=f"{p}room{idx}_price_{combo.replace('+', '_')}")
 
         st.text_area("Room Notes", key=f"{p}room{idx}_notes", height=80,
-                     placeholder="Τυχόν σημειώσεις για αυτόν τον τύπο δωματίου...")
+                     placeholder="Any notes about this room type...")
 
 
 def render_venue_block(s_idx, prefix=""):
@@ -519,7 +519,7 @@ def render_venue_block(s_idx, prefix=""):
         col_h, col_r = st.columns([10, 1])
         col_h.markdown(f"**🏛️ Venue {s_idx}**")
         space_indices = st.session_state.get(f"{p}space_indices", [s_idx])
-        if col_r.button("✖", key=f"{p}rm_space_{s_idx}", help="Αφαίρεση",
+        if col_r.button("✖", key=f"{p}rm_space_{s_idx}", help="Delete",
                         disabled=len(space_indices) <= 1):
             space_indices.remove(s_idx)
             st.rerun()
@@ -528,7 +528,7 @@ def render_venue_block(s_idx, prefix=""):
         c1, c2 = st.columns(2)
         with c1:
             st.text_input("Event Name", key=f"{p}space{s_idx}_venue_event_name",
-                          placeholder="π.χ. Welcome Dinner")
+                          placeholder="e.g. Welcome Dinner")
         with c2:
             st.selectbox("Venue Name", space_names, key=f"{p}space{s_idx}_name")
 
@@ -544,7 +544,7 @@ def render_venue_block(s_idx, prefix=""):
                           value=time_type(18, 0), step=900)
 
         st.text_area("Venue Notes", key=f"{p}space{s_idx}_venue_notes", height=80,
-                     placeholder="Σημειώσεις setup, layout, εξοπλισμός...")
+                     placeholder="Setup, layout, equipment notes...")
 
         # ── Services ──
         st.markdown("**Services**")
@@ -559,7 +559,7 @@ def render_venue_block(s_idx, prefix=""):
                                 key=f"{p}space{s_idx}_service{sv_idx}_pax")
             with c3:
                 st.markdown("<br>", unsafe_allow_html=True)
-                if st.button("✖", key=f"{p}rm_svc_{s_idx}_{sv_idx}", help="Αφαίρεση",
+                if st.button("✖", key=f"{p}rm_svc_{s_idx}_{sv_idx}", help="Delete",
                              disabled=len(svc_indices) <= 1):
                     svc_indices.remove(sv_idx)
                     st.session_state[f"{p}space_service_indices"][s_idx] = svc_indices
@@ -573,7 +573,7 @@ def render_venue_block(s_idx, prefix=""):
             st.rerun()
 
         st.text_area("Service Notes", key=f"{p}space{s_idx}_service_notes", height=80,
-                     placeholder="Σημειώσεις catering, στυλ σερβιρίσματος...")
+                     placeholder="Catering notes, serving style...")
 
 
 def render_calendar_block(day_idx, prefix=""):
@@ -582,13 +582,13 @@ def render_calendar_block(day_idx, prefix=""):
         col_h, col_r = st.columns([10, 1])
         col_h.markdown(f"**📅 Day {day_idx}**")
         cal_indices = st.session_state.get(f"{p}calendar_indices", [day_idx])
-        if col_r.button("✖", key=f"{p}rm_cal_{day_idx}", help="Αφαίρεση"):
+        if col_r.button("✖", key=f"{p}rm_cal_{day_idx}", help="Delete"):
             cal_indices.remove(day_idx)
             st.rerun()
 
         st.date_input("Date", key=f"{p}calendar_day{day_idx}_date")
         st.text_area("Schedule", key=f"{p}calendar_day{day_idx}_schedule", height=120,
-                     placeholder="Αναλυτικό πρόγραμμα ημέρας...")
+                     placeholder="Detailed daily schedule...")
 
 
 def render_menu_block(menu_idx, prefix=""):
@@ -600,7 +600,7 @@ def render_menu_block(menu_idx, prefix=""):
         col_h, col_r = st.columns([10, 1])
         col_h.markdown(f"**🍽️ Menu {menu_idx}**")
         menu_indices = st.session_state.get(f"{p}menu_indices", [menu_idx])
-        if col_r.button("✖", key=f"{p}rm_menu_{menu_idx}", help="Αφαίρεση"):
+        if col_r.button("✖", key=f"{p}rm_menu_{menu_idx}", help="Delete"):
             menu_indices.remove(menu_idx)
             st.rerun()
 
@@ -611,7 +611,7 @@ def render_menu_block(menu_idx, prefix=""):
             st.selectbox("Venue Name", space_names, key=f"{p}menu{menu_idx}_venue_name")
         with c3:
             st.text_input("Activity Name", key=f"{p}menu{menu_idx}_activity_name",
-                          placeholder="π.χ. Welcome Dinner")
+                          placeholder="e.g. Welcome Dinner")
 
         c1, c2, c3 = st.columns(3)
         with c1:
@@ -622,9 +622,9 @@ def render_menu_block(menu_idx, prefix=""):
             st.number_input("Pax Max", min_value=0, step=1, key=f"{p}menu{menu_idx}_pax_max")
 
         st.text_area("Menu Items", key=f"{p}menu{menu_idx}_items", height=100,
-                     placeholder="Περιγραφή πιάτων, επιλογές, αλλεργίες...")
+                     placeholder="Dish description, options, allergies...")
         st.text_area("Notes on the Menu", key=f"{p}menu{menu_idx}_notes", height=80,
-                     placeholder="Ειδικές απαιτήσεις, σημειώσεις...")
+                     placeholder="Special requirements, notes...")
 
 
 # ─────────────────────────────────────────────
@@ -652,9 +652,9 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
         st.number_input("Number of Attendees", min_value=1, step=1, key=f"{p}attendees")
 
     st.text_area("Event Description", key=f"{p}event_description", height=120,
-                 placeholder="Σύντομη περιγραφή του event...")
+                 placeholder="Brief description of the event...")
     st.text_area("Important Info", key=f"{p}important_info", height=100,
-                 placeholder="Σημαντικές πληροφορίες, ιδιαίτερες απαιτήσεις...")
+                 placeholder="Important information, special requirements...")
 
     st.divider()
 
@@ -664,13 +664,13 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
     st.subheader("2. Event Organizers & VIPs")
     incl_organizer = st.toggle("Includes Organizer Info", key=f"{p}includes_organizer_info")
     if incl_organizer:
-        st.text_input("Organizer", key=f"{p}organizer", placeholder="Όνομα / Εταιρεία")
+        st.text_input("Organizer", key=f"{p}organizer", placeholder="Name / Company")
         st.text_area("Contact Info", key=f"{p}contact_info", height=80,
-                     placeholder="Τηλέφωνο, email, κλπ.")
+                     placeholder="Other names, Phones, emails, etc")
         st.text_area("Special Offers", key=f"{p}special_offers", height=80,
-                     placeholder="Ειδικές παροχές / εκπτώσεις για τον organizer...")
+                     placeholder="Special benefits / discounts for the organizer...")
         st.text_area("Notes", key=f"{p}organizer_notes", height=80,
-                     placeholder="Οποιαδήποτε άλλη σημείωση...")
+                     placeholder="Any other notes...")
 
     st.divider()
 
@@ -740,7 +740,7 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
                             min_value=0, step=1, key=f"{p}deposit_days")
 
         st.text_area("Accommodation Notes", key=f"{p}accommodation_notes", height=100,
-                     placeholder="Ειδικά αιτήματα, παρατηρήσεις για τα δωμάτια...")
+                     placeholder="Special requests, comments about the rooms...")
 
         # ── Room Types ──
         st.markdown("#### Room Types")
@@ -761,7 +761,7 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
     incl_venues = st.toggle("Includes Venues & Services", key=f"{p}includes_venues")
     if incl_venues:
         st.text_area("Preparation Notes", key=f"{p}preparation_notes", height=100,
-                     placeholder="Γενικές σημειώσεις προετοιμασίας για όλα τα venues...")
+                     placeholder="General preparation notes for all venues...")
         for s_idx in list(st.session_state[f"{p}space_indices"]):
             render_venue_block(s_idx, p)
         if st.button("➕ Add Another Venue", key=f"{p}add_space"):
@@ -797,19 +797,19 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
                      key=f"{p}submit_btn"):
             errors = []
             if not st.session_state.get(f"{p}submitted_by", "").strip():
-                errors.append("Το όνομά σου είναι υποχρεωτικό.")
+                errors.append("Your name is required..")
             if not st.session_state.get(f"{p}event_name", "").strip():
-                errors.append("Το όνομα του event είναι υποχρεωτικό.")
+                errors.append("Event name is required.")
             if errors:
                 for e in errors:
                     st.error(e)
                 return False
-            with st.spinner("Αποθήκευση..."):
+            with st.spinner("Saving..."):
                 try:
                     _save_from_state(p)
                     return True
                 except Exception as e:
-                    st.error(f"❌ Σφάλμα: {e}")
+                    st.error(f"❌ Error: {e}")
                     return False
     return False
 
