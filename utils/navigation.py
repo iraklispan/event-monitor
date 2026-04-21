@@ -34,10 +34,10 @@ def nav_bar() -> None:
         """,
         unsafe_allow_html=True,
     )
-    if st.sidebar.button("📋 Register Event", use_container_width=True, key="nav_form"):
+    if st.sidebar.button("📋 Register Event", type="primary", use_container_width=True, key="nav_form"):
         st.switch_page("app.py")
 
-    if st.sidebar.button("📊 Dashboard", use_container_width=True, key="nav_dashboard"):
+    if st.sidebar.button("📊 Dashboard", type="primary", use_container_width=True, key="nav_dashboard"):
         st.switch_page("pages/1_dashboard.py")
 
     if is_admin():
