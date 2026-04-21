@@ -736,7 +736,7 @@ def render_event_form(prefix="", submit_label="💾 Save Event"):
             st.number_input("Free cancellation up to X days before arrival",
                             min_value=0, step=1, key=f"{p}cancellation_days")
         elif cancel_policy == "Night Deposit":
-            st.number_input("Deposit required X days before arrival",
+            st.number_input("X Nights Deposit (Non Refundable)",
                             min_value=0, step=1, key=f"{p}deposit_days")
 
         st.text_area("Accommodation Notes", key=f"{p}accommodation_notes", height=100,
